@@ -32,9 +32,10 @@ namespace PRCOURSE {
 
 		void QuestionFunc(char gameMode, int count)
 		{
+			int countDivFive = count / 5;
 			array <String^>^ questString;
 			array <String^>^ answerString;
-			String^ helpStr;
+			String^ helpStr = "";
 			int questionNumber;
 			int answerOptionNumber;
 			int options[4];
@@ -47,9 +48,10 @@ namespace PRCOURSE {
 				{
 					if (question_numbers[0] == 0)
 					{
+						PointCountLabel->Text = "Баллы: 0/0";
 						gameMode_q = gameMode;
 						count_q = count;
-						maxQuestions = 10;
+						maxQuestions = 30;
 						srand(time(0));
 						questionNumber = (rand() % maxQuestions) + 1;
 						question_numbers[0] = questionNumber;
@@ -66,13 +68,8 @@ namespace PRCOURSE {
 
 						addNumber(question_numbers, count * 5, questionNumber);
 					}
-
-					int currQuest;
-					for (currQuest = 0; question_numbers[currQuest] != 0; currQuest++);
-					if (currQuest > count)
-						currQuest = count;
-					QuestionCountLabel->Text = "Вопрос " + currQuest + "/" + count;
-					PointCountLabel->Text = "Баллы: " + points;
+					questionsAsked++;
+					QuestionCountLabel->Text = "Вопрос " + questionsAsked  + "/" + count;
 					right_answer = (rand() % 4) + 1;
 					addNumber(options, 4, right_answer);
 
@@ -82,6 +79,26 @@ namespace PRCOURSE {
 						helpStr = fptr->ReadLine();
 						questString = helpStr->Split(' ');
 					} while (questString[0] != questionNumber.ToString());
+
+					if (questString[1] == "2" && blitzLimit >= countDivFive)
+					{
+						do {
+							fptr->Close();
+							fptr = File::OpenText(textQName);
+							do
+							{
+								srand(time(0));
+								questionNumber = (rand() % maxQuestions) + 1;
+							} while (arrayContainsNumber(question_numbers, count * 5, questionNumber));
+
+							do
+							{
+								helpStr = fptr->ReadLine();
+								questString = helpStr->Split(' ');
+							} while (questString[0] != questionNumber.ToString());
+						} while (questString[1] == "2");
+						addNumber(question_numbers, count * 5, questionNumber);
+					}
 
 					if (questString[1] == "1")
 					{
@@ -123,10 +140,11 @@ namespace PRCOURSE {
 							button3->Text = answerString[3];
 						if (right_answer == 4)
 							button4->Text = answerString[3];
-						questionsAsked++;
 					}
 					else if (questString[1] == "2")
 					{
+						blitzLimit++;
+						fptr->Close();
 						deleteLast(question_numbers, count * 5);
 						isInBlitz = true;
 						QuestionThemeLabel->Visible = false;
@@ -144,9 +162,12 @@ namespace PRCOURSE {
 			{
 				if (gameMode == 'S')
 				{
-					StreamReader^ fptr = File::OpenText(textQName);
+					StreamReader^ fptr = File::OpenText(textQName);;
+					int k;
 					do
 					{
+						fptr->Close();
+						fptr = File::OpenText(textQName);
 						// Получение номера случайного вопроса.
 						do
 						{
@@ -154,8 +175,10 @@ namespace PRCOURSE {
 							questionNumber = (rand() % maxQuestions) + 1;
 						} while (arrayContainsNumber(question_numbers, count * 5, questionNumber));
 
+						k = 0;
 						do
 						{
+							k++;
 							helpStr = fptr->ReadLine();
 							questString = helpStr->Split(' ');
 						} while (questString[0] != questionNumber.ToString());
@@ -163,6 +186,50 @@ namespace PRCOURSE {
 
 					addNumber(question_numbers, count * 5, questionNumber);
 
+					right_answer = (rand() % 4) + 1;
+					addNumber(options, 4, right_answer);
+
+					helpStr = fptr->ReadLine();
+					QuestionThemeLabel->Text = "Вопрос по теме: " + helpStr;
+
+					do
+					{
+						helpStr = fptr->ReadLine();
+						QuestionLabel->Text = QuestionLabel->Text + helpStr + "\n";
+					} while (helpStr[0] != ' ');
+
+					helpStr = fptr->ReadLine();
+					answerString = helpStr->Split('|');
+					fptr->Close();
+					for (int i = 0; i < 3; i++)
+					{
+						do
+						{
+							answerOptionNumber = (rand() % 4) + 1;
+						} while (arrayContainsNumber(options, 4, answerOptionNumber));
+						addNumber(options, 4, answerOptionNumber);
+
+						if (answerOptionNumber == 1)
+							button1->Text = answerString[i];
+						if (answerOptionNumber == 2)
+							button2->Text = answerString[i];
+						if (answerOptionNumber == 3)
+							button3->Text = answerString[i];
+						if (answerOptionNumber == 4)
+							button4->Text = answerString[i];
+					}
+
+					if (right_answer == 1)
+						button1->Text = answerString[3];
+					if (right_answer == 2)
+						button2->Text = answerString[3];
+					if (right_answer == 3)
+						button3->Text = answerString[3];
+					if (right_answer == 4)
+						button4->Text = answerString[3];
+
+					blitzQuestionsAsked++;
+					BlitzTimer->Start();
 				}
 			}
 		}
@@ -177,12 +244,14 @@ namespace PRCOURSE {
 				delete components;
 			}
 		}
+private: System::ComponentModel::IContainer^ components;
+protected:
 
 	private:
 		/// <summary>
 		/// Обязательная переменная конструктора.
 		/// </summary>
-		System::ComponentModel::Container ^components;
+
 
 		int	right_answer;
 		int maxQuestions = 0;
@@ -192,6 +261,8 @@ namespace PRCOURSE {
 		String^ textQName = "TextQ.txt";
 		bool isInBlitz = false;
 		int questionsAsked = 0;
+		int blitzLimit = 0;
+		int blitzQuestionsAnswered = 0;
 		int blitzQuestionsAsked = 0;
 
 	private: System::Windows::Forms::Label^ QuestionCountLabel;
@@ -207,6 +278,9 @@ private: System::Windows::Forms::Button^ ContinueButton;
 private: System::Windows::Forms::Button^ BlitzContinueButton;
 
 private: System::Windows::Forms::Label^ BlitzLabel;
+private: System::Windows::Forms::Timer^ BlitzTimer;
+
+private: System::Windows::Forms::ProgressBar^ BlitzTimeProgressBar;
 
 
 	   int* question_numbers = (int*)malloc(sizeof(int) * (M + 1));
@@ -248,6 +322,8 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 		/// </summary>
 		void InitializeComponent(void)
 		{
+			this->components = (gcnew System::ComponentModel::Container());
+			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(TextQForm::typeid));
 			this->QuestionCountLabel = (gcnew System::Windows::Forms::Label());
 			this->PointCountLabel = (gcnew System::Windows::Forms::Label());
 			this->QuestionThemeLabel = (gcnew System::Windows::Forms::Label());
@@ -260,6 +336,8 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 			this->ContinueButton = (gcnew System::Windows::Forms::Button());
 			this->BlitzContinueButton = (gcnew System::Windows::Forms::Button());
 			this->BlitzLabel = (gcnew System::Windows::Forms::Label());
+			this->BlitzTimer = (gcnew System::Windows::Forms::Timer(this->components));
+			this->BlitzTimeProgressBar = (gcnew System::Windows::Forms::ProgressBar());
 			this->SuspendLayout();
 			// 
 			// QuestionCountLabel
@@ -278,7 +356,7 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 			this->PointCountLabel->AutoSize = true;
 			this->PointCountLabel->Font = (gcnew System::Drawing::Font(L"Century Gothic", 15.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->PointCountLabel->Location = System::Drawing::Point(692, 9);
+			this->PointCountLabel->Location = System::Drawing::Point(804, 11);
 			this->PointCountLabel->Name = L"PointCountLabel";
 			this->PointCountLabel->Size = System::Drawing::Size(100, 25);
 			this->PointCountLabel->TabIndex = 12;
@@ -289,7 +367,7 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 			this->QuestionThemeLabel->AutoSize = true;
 			this->QuestionThemeLabel->Font = (gcnew System::Drawing::Font(L"Century Gothic", 21.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			this->QuestionThemeLabel->Location = System::Drawing::Point(136, 39);
+			this->QuestionThemeLabel->Location = System::Drawing::Point(196, 43);
 			this->QuestionThemeLabel->Name = L"QuestionThemeLabel";
 			this->QuestionThemeLabel->Size = System::Drawing::Size(262, 36);
 			this->QuestionThemeLabel->TabIndex = 13;
@@ -300,7 +378,7 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 			this->QuestionLabel->AutoSize = true;
 			this->QuestionLabel->Font = (gcnew System::Drawing::Font(L"Century Gothic", 20.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			this->QuestionLabel->Location = System::Drawing::Point(50, 86);
+			this->QuestionLabel->Location = System::Drawing::Point(108, 84);
 			this->QuestionLabel->Name = L"QuestionLabel";
 			this->QuestionLabel->Size = System::Drawing::Size(15, 32);
 			this->QuestionLabel->TabIndex = 14;
@@ -311,9 +389,9 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 			this->button1->BackColor = System::Drawing::Color::Gainsboro;
 			this->button1->Font = (gcnew System::Drawing::Font(L"Century Gothic", 20.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			this->button1->Location = System::Drawing::Point(56, 268);
+			this->button1->Location = System::Drawing::Point(27, 266);
 			this->button1->Name = L"button1";
-			this->button1->Size = System::Drawing::Size(274, 70);
+			this->button1->Size = System::Drawing::Size(417, 70);
 			this->button1->TabIndex = 15;
 			this->button1->UseVisualStyleBackColor = false;
 			this->button1->Click += gcnew System::EventHandler(this, &TextQForm::button1_Click);
@@ -323,9 +401,9 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 			this->button2->BackColor = System::Drawing::Color::Gainsboro;
 			this->button2->Font = (gcnew System::Drawing::Font(L"Century Gothic", 20.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			this->button2->Location = System::Drawing::Point(56, 386);
+			this->button2->Location = System::Drawing::Point(27, 384);
 			this->button2->Name = L"button2";
-			this->button2->Size = System::Drawing::Size(274, 70);
+			this->button2->Size = System::Drawing::Size(417, 70);
 			this->button2->TabIndex = 16;
 			this->button2->UseVisualStyleBackColor = false;
 			this->button2->Click += gcnew System::EventHandler(this, &TextQForm::button2_Click);
@@ -335,9 +413,9 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 			this->button3->BackColor = System::Drawing::Color::Gainsboro;
 			this->button3->Font = (gcnew System::Drawing::Font(L"Century Gothic", 20.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			this->button3->Location = System::Drawing::Point(484, 268);
+			this->button3->Location = System::Drawing::Point(473, 266);
 			this->button3->Name = L"button3";
-			this->button3->Size = System::Drawing::Size(274, 70);
+			this->button3->Size = System::Drawing::Size(451, 70);
 			this->button3->TabIndex = 17;
 			this->button3->UseVisualStyleBackColor = false;
 			this->button3->Click += gcnew System::EventHandler(this, &TextQForm::button3_Click);
@@ -347,9 +425,9 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 			this->button4->BackColor = System::Drawing::Color::Gainsboro;
 			this->button4->Font = (gcnew System::Drawing::Font(L"Century Gothic", 20.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			this->button4->Location = System::Drawing::Point(484, 386);
+			this->button4->Location = System::Drawing::Point(473, 384);
 			this->button4->Name = L"button4";
-			this->button4->Size = System::Drawing::Size(274, 70);
+			this->button4->Size = System::Drawing::Size(451, 70);
 			this->button4->TabIndex = 18;
 			this->button4->UseVisualStyleBackColor = false;
 			this->button4->Click += gcnew System::EventHandler(this, &TextQForm::button4_Click);
@@ -360,18 +438,19 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 			this->AnswerResultLabel->Font = (gcnew System::Drawing::Font(L"Century Gothic", 36, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
 			this->AnswerResultLabel->ForeColor = System::Drawing::Color::ForestGreen;
-			this->AnswerResultLabel->Location = System::Drawing::Point(314, 192);
+			this->AnswerResultLabel->Location = System::Drawing::Point(372, 190);
 			this->AnswerResultLabel->Name = L"AnswerResultLabel";
 			this->AnswerResultLabel->Size = System::Drawing::Size(188, 56);
 			this->AnswerResultLabel->TabIndex = 19;
 			this->AnswerResultLabel->Text = L"Верно!";
+			this->AnswerResultLabel->Visible = false;
 			// 
 			// ContinueButton
 			// 
 			this->ContinueButton->BackColor = System::Drawing::Color::Gainsboro;
 			this->ContinueButton->Font = (gcnew System::Drawing::Font(L"Century Gothic", 20.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			this->ContinueButton->Location = System::Drawing::Point(312, 505);
+			this->ContinueButton->Location = System::Drawing::Point(370, 503);
 			this->ContinueButton->Name = L"ContinueButton";
 			this->ContinueButton->Size = System::Drawing::Size(194, 40);
 			this->ContinueButton->TabIndex = 20;
@@ -385,7 +464,7 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 			this->BlitzContinueButton->BackColor = System::Drawing::Color::Gainsboro;
 			this->BlitzContinueButton->Font = (gcnew System::Drawing::Font(L"Century Gothic", 20.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			this->BlitzContinueButton->Location = System::Drawing::Point(312, 401);
+			this->BlitzContinueButton->Location = System::Drawing::Point(370, 430);
 			this->BlitzContinueButton->Name = L"BlitzContinueButton";
 			this->BlitzContinueButton->Size = System::Drawing::Size(194, 40);
 			this->BlitzContinueButton->TabIndex = 21;
@@ -399,19 +478,38 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 			this->BlitzLabel->AutoSize = true;
 			this->BlitzLabel->Font = (gcnew System::Drawing::Font(L"Century Gothic", 21.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			this->BlitzLabel->Location = System::Drawing::Point(66, 148);
+			this->BlitzLabel->Location = System::Drawing::Point(97, 102);
 			this->BlitzLabel->Name = L"BlitzLabel";
-			this->BlitzLabel->Size = System::Drawing::Size(692, 144);
+			this->BlitzLabel->Size = System::Drawing::Size(752, 288);
 			this->BlitzLabel->TabIndex = 22;
-			this->BlitzLabel->Text = L"Сейчас будет блитц-игра.\r\nЭто означает, что на каждый вопрос\r\nВам будет дано 4 се"
-				L"кунды.\r\nКогда будете готовы, нажмите \"Продолжить\"";
+			this->BlitzLabel->Text = resources->GetString(L"BlitzLabel.Text");
 			this->BlitzLabel->Visible = false;
+			// 
+			// BlitzTimer
+			// 
+			this->BlitzTimer->Interval = 1000;
+			this->BlitzTimer->Tick += gcnew System::EventHandler(this, &TextQForm::BlitzTimer_Tick);
+			// 
+			// BlitzTimeProgressBar
+			// 
+			this->BlitzTimeProgressBar->BackColor = System::Drawing::Color::Yellow;
+			this->BlitzTimeProgressBar->Location = System::Drawing::Point(164, 14);
+			this->BlitzTimeProgressBar->MarqueeAnimationSpeed = 0;
+			this->BlitzTimeProgressBar->Maximum = 8;
+			this->BlitzTimeProgressBar->Name = L"BlitzTimeProgressBar";
+			this->BlitzTimeProgressBar->RightToLeft = System::Windows::Forms::RightToLeft::Yes;
+			this->BlitzTimeProgressBar->Size = System::Drawing::Size(604, 23);
+			this->BlitzTimeProgressBar->Step = 1;
+			this->BlitzTimeProgressBar->Style = System::Windows::Forms::ProgressBarStyle::Continuous;
+			this->BlitzTimeProgressBar->TabIndex = 23;
+			this->BlitzTimeProgressBar->Visible = false;
 			// 
 			// TextQForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(828, 557);
+			this->ClientSize = System::Drawing::Size(950, 557);
+			this->Controls->Add(this->BlitzTimeProgressBar);
 			this->Controls->Add(this->BlitzLabel);
 			this->Controls->Add(this->BlitzContinueButton);
 			this->Controls->Add(this->ContinueButton);
@@ -434,11 +532,19 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
 		if (right_answer == 1)
 		{
+			BlitzTimer->Stop();
 			button1->BackColor = System::Drawing::Color::LightGreen;
-			points += 5;
+			if (blitzQuestionsAsked > 0)
+			{
+				points++;
+				blitzQuestionsAnswered++;
+			}
+			else
+				points += 5;
 		}
 		if (right_answer == 2)
 		{
+			BlitzTimer->Stop();
 			button1->BackColor = System::Drawing::Color::IndianRed;
 			button2->BackColor = System::Drawing::Color::LightGreen;
 			AnswerResultLabel->Text = "Неверно!";
@@ -446,6 +552,7 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 		}
 		if (right_answer == 3)
 		{
+			BlitzTimer->Stop();
 			this->button1->BackColor = System::Drawing::Color::IndianRed;
 			this->button3->BackColor = System::Drawing::Color::LightGreen;
 			this->AnswerResultLabel->Text = "Неверно!";
@@ -453,11 +560,24 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 		}
 		if (right_answer == 4)
 		{
+			BlitzTimer->Stop();
 			this->button1->BackColor = System::Drawing::Color::IndianRed;
 			this->button4->BackColor = System::Drawing::Color::LightGreen;
 			this->AnswerResultLabel->Text = "Неверно!";
 			this->AnswerResultLabel->ForeColor = System::Drawing::Color::Firebrick;
 		}
+
+		if (blitzQuestionsAsked == 5)
+		{
+			BlitzTimeProgressBar->Visible = false;
+			blitzQuestionsAsked = 0;
+			isInBlitz = false;
+			if (blitzQuestionsAnswered == 5)
+				points += 5;
+			blitzQuestionsAnswered = 0;
+		}
+
+		PointCountLabel->Text = "Баллы: " + points + "/" + (count_q * 5);
 		AnswerResultLabel->Visible = true;
 		ContinueButton->Visible = true;
 		button1->Enabled = false;
@@ -467,13 +587,12 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 
 		if (questionsAsked == count_q)
 		{
-			PointCountLabel->Text = "Баллы: " + points + "/" + count_q;
-			if ((double)points > ((3.0 / 4.0) * (double)count_q))
-				MessageBox::Show("Вы показали замечательный результат: " + points + "/" + count_q, "Отлично!");
-			else if ((double)points > ((1.0 / 2.0) * (double)count_q))
-				MessageBox::Show("Вы показали достойный результат: " + points + "/" + count_q, "Неплохо!");
+			if ((double)points > ((3.0 / 4.0) * (double)(count_q * 5)))
+				MessageBox::Show("Вы показали замечательный результат: " + points + "/" + (count_q * 5), "Отлично!");
+			else if ((double)points > ((1.0 / 2.0) * (double)(count_q * 5)))
+				MessageBox::Show("Вы показали достойный результат: " + points + "/" + (count_q * 5), "Неплохо!");
 			else
-				MessageBox::Show("К сожалению, Вы показали плохой результат: " + points + "/" + count_q, "Посредственно");
+				MessageBox::Show("К сожалению, Вы показали плохой результат: " + points + "/" + (count_q * 5), "Посредственно");
 			this->Close();
 		}
 	}
@@ -481,6 +600,7 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 	private: System::Void button2_Click(System::Object^ sender, System::EventArgs^ e) {
 		if (right_answer == 1)
 		{
+			BlitzTimer->Stop();
 			button2->BackColor = System::Drawing::Color::IndianRed;
 			button1->BackColor = System::Drawing::Color::LightGreen;
 			AnswerResultLabel->Text = "Неверно!";
@@ -488,11 +608,19 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 		}
 		if (right_answer == 2)
 		{
+			BlitzTimer->Stop();
 			button2->BackColor = System::Drawing::Color::LightGreen;
-			points += 5;
+			if (blitzQuestionsAsked > 0)
+			{
+				points++;
+				blitzQuestionsAnswered++;
+			}
+			else
+				points += 5;
 		}
 		if (right_answer == 3)
 		{
+			BlitzTimer->Stop();
 			this->button2->BackColor = System::Drawing::Color::IndianRed;
 			this->button3->BackColor = System::Drawing::Color::LightGreen;
 			this->AnswerResultLabel->Text = "Неверно!";
@@ -500,11 +628,24 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 		}
 		if (right_answer == 4)
 		{
+			BlitzTimer->Stop();
 			this->button2->BackColor = System::Drawing::Color::IndianRed;
 			this->button4->BackColor = System::Drawing::Color::LightGreen;
 			this->AnswerResultLabel->Text = "Неверно!";
 			this->AnswerResultLabel->ForeColor = System::Drawing::Color::Firebrick;
 		}
+
+		if (blitzQuestionsAsked == 5)
+		{
+			BlitzTimeProgressBar->Visible = false;
+			blitzQuestionsAsked = 0;
+			isInBlitz = false;
+			if (blitzQuestionsAnswered == 5)
+				points += 5;
+			blitzQuestionsAnswered = 0;
+		}
+
+		PointCountLabel->Text = "Баллы: " + points + "/" + (count_q * 5);
 		AnswerResultLabel->Visible = true;
 		ContinueButton->Visible = true;
 		button1->Enabled = false;
@@ -514,13 +655,12 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 
 		if (questionsAsked == count_q)
 		{
-			PointCountLabel->Text = "Баллы: " + points + "/" + count_q;
-			if ((double)points > ((3.0 / 4.0) * (double)count_q))
-				MessageBox::Show("Вы показали замечательный результат: " + points + "/" + count_q, "Отлично!");
-			else if ((double)points > ((1.0 / 2.0) * (double)count_q))
-				MessageBox::Show("Вы показали достойный результат: " + points + "/" + count_q, "Неплохо!");
+			if ((double)points > ((3.0 / 4.0) * (double)(count_q * 5)))
+				MessageBox::Show("Вы показали замечательный результат: " + points + "/" + (count_q * 5), "Отлично!");
+			else if ((double)points > ((1.0 / 2.0) * (double)(count_q * 5)))
+				MessageBox::Show("Вы показали достойный результат: " + points + "/" + (count_q * 5), "Неплохо!");
 			else
-				MessageBox::Show("К сожалению, Вы показали плохой результат: " + points + "/" + count_q, "Посредственно");
+				MessageBox::Show("К сожалению, Вы показали плохой результат: " + points + "/" + (count_q * 5), "Посредственно");
 			this->Close();
 		}
 	}
@@ -528,6 +668,7 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 	private: System::Void button3_Click(System::Object^ sender, System::EventArgs^ e) {
 		if (right_answer == 1)
 		{
+			BlitzTimer->Stop();
 			button3->BackColor = System::Drawing::Color::IndianRed;
 			button1->BackColor = System::Drawing::Color::LightGreen;
 			AnswerResultLabel->Text = "Неверно!";
@@ -535,6 +676,7 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 		}
 		if (right_answer == 2)
 		{
+			BlitzTimer->Stop();
 			this->button3->BackColor = System::Drawing::Color::IndianRed;
 			this->button2->BackColor = System::Drawing::Color::LightGreen;
 			this->AnswerResultLabel->Text = "Неверно!";
@@ -542,16 +684,36 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 		}
 		if (right_answer == 3)
 		{
+			BlitzTimer->Stop();
 			button3->BackColor = System::Drawing::Color::LightGreen;
-			points += 5;
+			if (blitzQuestionsAsked > 0)
+			{
+				points++;
+				blitzQuestionsAnswered++;
+			}
+			else
+				points += 5;
 		}
 		if (right_answer == 4)
 		{
+			BlitzTimer->Stop();
 			this->button3->BackColor = System::Drawing::Color::IndianRed;
 			this->button4->BackColor = System::Drawing::Color::LightGreen;
 			this->AnswerResultLabel->Text = "Неверно!";
 			this->AnswerResultLabel->ForeColor = System::Drawing::Color::Firebrick;
 		}
+
+		if (blitzQuestionsAsked == 5)
+		{
+			BlitzTimeProgressBar->Visible = false;
+			blitzQuestionsAsked = 0;
+			isInBlitz = false;
+			if (blitzQuestionsAnswered == 5)
+				points += 5;
+			blitzQuestionsAnswered = 0;
+		}
+
+		PointCountLabel->Text = "Баллы: " + points + "/" + (count_q * 5);
 		AnswerResultLabel->Visible = true;
 		ContinueButton->Visible = true;
 		button1->Enabled = false;
@@ -561,13 +723,12 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 
 		if (questionsAsked == count_q)
 		{
-			PointCountLabel->Text = "Баллы: " + points + "/" + count_q;
-			if ((double)points > ((3.0 / 4.0) * (double)count_q))
-				MessageBox::Show("Вы показали замечательный результат: " + points + "/" + count_q, "Отлично!");
-			else if ((double)points > ((1.0 / 2.0) * (double)count_q))
-				MessageBox::Show("Вы показали достойный результат: " + points + "/" + count_q, "Неплохо!");
+			if ((double)points > ((3.0 / 4.0) * (double)(count_q * 5)))
+				MessageBox::Show("Вы показали замечательный результат: " + points + "/" + (count_q * 5), "Отлично!");
+			else if ((double)points > ((1.0 / 2.0) * (double)(count_q * 5)))
+				MessageBox::Show("Вы показали достойный результат: " + points + "/" + (count_q * 5), "Неплохо!");
 			else
-				MessageBox::Show("К сожалению, Вы показали плохой результат: " + points + "/" + count_q, "Посредственно");
+				MessageBox::Show("К сожалению, Вы показали плохой результат: " + points + "/" + (count_q * 5), "Посредственно");
 			this->Close();
 		}
 	}
@@ -575,6 +736,7 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 	private: System::Void button4_Click(System::Object^ sender, System::EventArgs^ e) {
 		if (right_answer == 1)
 		{
+			BlitzTimer->Stop();
 			button4->BackColor = System::Drawing::Color::IndianRed;
 			button1->BackColor = System::Drawing::Color::LightGreen;
 			AnswerResultLabel->Text = "Неверно!";
@@ -582,6 +744,7 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 		}
 		if (right_answer == 2)
 		{
+			BlitzTimer->Stop();
 			this->button4->BackColor = System::Drawing::Color::IndianRed;
 			this->button2->BackColor = System::Drawing::Color::LightGreen;
 			this->AnswerResultLabel->Text = "Неверно!";
@@ -589,6 +752,7 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 		}
 		if (right_answer == 3)
 		{
+			BlitzTimer->Stop();
 			this->button4->BackColor = System::Drawing::Color::IndianRed;
 			this->button3->BackColor = System::Drawing::Color::LightGreen;
 			this->AnswerResultLabel->Text = "Неверно!";
@@ -596,9 +760,28 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 		}
 		if (right_answer == 4)
 		{
+			BlitzTimer->Stop();
 			button4->BackColor = System::Drawing::Color::LightGreen;
-			points += 5;
+			if (blitzQuestionsAsked > 0)
+			{
+				points++;
+				blitzQuestionsAnswered++;
+			}
+			else
+				points += 5;
 		}
+
+		if (blitzQuestionsAsked == 5)
+		{
+			BlitzTimeProgressBar->Visible = false;
+			blitzQuestionsAsked = 0;
+			isInBlitz = false;
+			if (blitzQuestionsAnswered == 5)
+				points += 5;
+			blitzQuestionsAnswered = 0;
+		}
+
+		PointCountLabel->Text = "Баллы: " + points + "/" + (count_q * 5);
 		AnswerResultLabel->Visible = true;
 		ContinueButton->Visible = true;
 		button1->Enabled = false;
@@ -608,18 +791,18 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 
 		if (questionsAsked == count_q)
 		{
-			PointCountLabel->Text = "Баллы: " + points + "/" + count_q;
-			if ((double)points > ((3.0 / 4.0) * (double)count_q))
-				MessageBox::Show("Вы показали замечательный результат: " + points + "/" + count_q, "Отлично!");
-			else if ((double)points > ((1.0 / 2.0) * (double)count_q))
-				MessageBox::Show("Вы показали достойный результат: " + points + "/" + count_q, "Неплохо!");
+			if ((double)points > ((3.0 / 4.0) * (double)(count_q* 5)))
+				MessageBox::Show("Вы показали замечательный результат: " + points + "/" + (count_q * 5), "Отлично!");
+			else if ((double)points > ((1.0 / 2.0) * (double)(count_q * 5)))
+				MessageBox::Show("Вы показали достойный результат: " + points + "/" + (count_q * 5), "Неплохо!");
 			else
-				MessageBox::Show("К сожалению, Вы показали плохой результат: " + points + "/" + count_q, "Посредственно");
+				MessageBox::Show("К сожалению, Вы показали плохой результат: " + points + "/" + (count_q * 5), "Посредственно");
 			this->Close();
 		}
 	}
 
 	private: System::Void ContinueButton_Click(System::Object^ sender, System::EventArgs^ e) {
+		BlitzTimeProgressBar->Value = 0;
 		AnswerResultLabel->Visible = false;
 		ContinueButton->Visible = false;
 		button1->BackColor = System::Drawing::Color::Gainsboro;
@@ -638,6 +821,34 @@ private: System::Windows::Forms::Label^ BlitzLabel;
 
 	private: System::Void BlitzContinueButton_Click(System::Object^ sender, System::EventArgs^ e) {
 		QuestionFunc(gameMode_q, count_q);
+		BlitzTimeProgressBar->Visible = true;
+		QuestionLabel->Visible = true;
+		QuestionThemeLabel->Visible = true;
+		button1->Visible = true;
+		button2->Visible = true;
+		button3->Visible = true;
+		button4->Visible = true;
+		BlitzLabel->Visible = false;
+		BlitzContinueButton->Visible = false;
+	}
+
+	private: System::Void BlitzTimer_Tick(System::Object^ sender, System::EventArgs^ e) {
+		if (BlitzTimeProgressBar->Value == 8)
+		{
+			BlitzTimer->Stop();
+			PointCountLabel->Text = "Баллы: " + points + "/" + (count_q * 5);
+			QuestionLabel->Text = "";
+			BlitzTimeProgressBar->Value = 0;
+			if (blitzQuestionsAsked == 5)
+			{
+				blitzQuestionsAsked = 0;
+				isInBlitz = false;
+				blitzQuestionsAnswered = 0;
+				BlitzTimeProgressBar->Visible = false;
+			}
+			QuestionFunc(gameMode_q, count_q);
+		}
+		BlitzTimeProgressBar->PerformStep();
 	}
 };
 }
