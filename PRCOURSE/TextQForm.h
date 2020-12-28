@@ -286,7 +286,6 @@ protected:
 		// —четчик правильно отвеченных блиц-вопросов дл€ одного блока.
 		int blitzQuestionsAnswered = 0;
 
-
 	private: System::Windows::Forms::Label^ QuestionCountLabel;
 	private: System::Windows::Forms::Label^ PointCountLabel;
 	private: System::Windows::Forms::Label^ QuestionThemeLabel;
