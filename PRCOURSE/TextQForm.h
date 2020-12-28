@@ -33,17 +33,22 @@ namespace PRCOURSE {
 				photoQuestionNumbers[i] = 0;
 			}
 		}
-		/**/
+		/* Функция по выводу вопроса из файла с именем textQName. */
 		void QuestionOutputFunc(char gameMode, String^ textQName, int count, int maxQuestions, int* questionNumbers)
 		{
+			// Массив строк для вывода вариантов ответа.
 			array <String^>^ answerString;
+			// Строка для чтения данных из файла.
 			String^ helpStr = "";
+			// Номер вопроса для вывода.
 			int questionNumber;
+			// Номер варианта ответа для выводу в button.
 			int answerOptionNumber;
+			// Массив для хранения уже использованных вариантов ответа.
 			int options[4];
 			for (int i = 0; i < 4; i++)
 				options[i] = 0;
-
+			// Если это первый задаваемый вопрос.
 			if (questionNumbers[0] == 0)
 			{
 				PointCountLabel->Text = "Баллы: " + points + "/" + (count * 5);
@@ -59,13 +64,15 @@ namespace PRCOURSE {
 				// Получение номера случайного вопроса.
 				do
 				{
+					srand(time(0));
 					questionNumber = (rand() % maxQuestions) + 1;
 				} while (arrayContainsNumber(questionNumbers, count * 2, questionNumber));
-
+				// Добавить номер вопроса в массив уже использованных.
 				addNumber(questionNumbers, count * 2, questionNumber);
 			}
 
 			QuestionCountLabel->Text = "Вопрос " + questionsAsked + "/" + count;
+			// Получение номера правильного ответа.
 			right_answer = (rand() % 4) + 1;
 			addNumber(options, 4, right_answer);
 
@@ -77,13 +84,13 @@ namespace PRCOURSE {
 
 			helpStr = fptr->ReadLine();
 			QuestionThemeLabel->Text = "Вопрос по теме: " + helpStr;
-
+			// Вывод вопроса, пока строка не будет начинаться со знака пробела.
 			do
 			{
 				helpStr = fptr->ReadLine();
 				QuestionLabel->Text = QuestionLabel->Text + helpStr + "\n";
 			} while (helpStr[0] != ' ');
-
+			// Если вопрос по фото - вывести это фото.
 			if (textQName == photoTextQName)
 			{
 				helpStr = fptr->ReadLine();
@@ -91,10 +98,11 @@ namespace PRCOURSE {
 				pictureBox->Image = image;
 				pictureBox->Visible = true;
 			}
-
+			// Получение вариантов ответа из файла и разбитие их на отдельные строки.
 			helpStr = fptr->ReadLine();
 			answerString = helpStr->Split('|');
 			fptr->Close();
+			// Цикл по случайному выводу вариантов ответа в кнопки.
 			for (int i = 0; i < 3; i++)
 			{
 				do
@@ -112,7 +120,7 @@ namespace PRCOURSE {
 				if (answerOptionNumber == 4)
 					button4->Text = answerString[i];
 			}
-
+			// Вывод правильного ответа в оставшуюся кнопку.
 			if (right_answer == 1)
 				button1->Text = answerString[3];
 			if (right_answer == 2)
@@ -122,26 +130,32 @@ namespace PRCOURSE {
 			if (right_answer == 4)
 				button4->Text = answerString[3];
 		}
-
+		/* Функция по выводу вопросов в заввисимости от режима игры и типов вопросов. */
 		void QuestionFunc(char gameMode, int count)
 		{
+			// Тип вопроса.
 			int questionType;
+			// Кол-во вопросов/5 для контроля кол-ва блиц-вопросов. 
 			int countDivFive = count / 5;
-
+			// Если блиц-режим неактивен.
 			if (isInBlitz == false)
 			{
+				// Если режим игры стандартный.
 				if (gameMode == 'S')
 				{
+					// Если лимит блиц-вопрсов не достигнут (например, на 10 вопросов максимум 2 блиц-вопроса).
 					if (blitzLimit < countDivFive)
 					{
+						// Случайный выбор между обычным и блиц вопросом.
 						srand(time(0));
 						questionType = (rand() % 2);
 					}
+					// Если же лимит достигнут - будет вывден обычный вопрос.
 					else
 					{
 						questionType = 0;
 					}
-
+					// Если был выбрал блиц-вопрос - вывести информацию о нем.
 					if (questionType)
 					{
 						gameMode_q = gameMode;
@@ -162,34 +176,42 @@ namespace PRCOURSE {
 					}
 					else
 					{
+						// Вывод обычного вопроса.
 						questionsAsked++;
 						QuestionOutputFunc(gameMode, regularTextQName, count, regularMaxQuestions, regularQuestionNumbers);
 					}
 				}
+				// Если режим игры расширенный. 
 				else
 				{
+					// Если лимит блиц-вопрсов не достигнут (например, на 10 вопросов максимум 2 блиц-вопроса).
 					if (blitzLimit < countDivFive)
 					{
+						// Случайный выбор из трех типов вопросов.
 						srand(time(0));
 						questionType = (rand() % 3);
 					}
 					else
 					{
+						// Случайный выбор из двух типов вопросов (обычный и вопрос по фото).
 						questionType = (rand() % 2);
 					}
 
 					if (questionType == 0)
 					{
+						// Вывод обычного вопроса.
 						questionsAsked++;
 						QuestionOutputFunc(gameMode, regularTextQName, count, regularMaxQuestions, regularQuestionNumbers);
 					}
 					else if (questionType == 1)
 					{
+						// Вывод вопроса по фото.
 						questionsAsked++;
 						QuestionOutputFunc(gameMode, photoTextQName, count, photoMaxQuestions, photoQuestionNumbers);
 					}
 					else
 					{
+						// Вывод информации о блиц-вопросе. Сами блиц-вопросы начнутся после нажатия кнопки "Продолжить".
 						gameMode_q = gameMode;
 						count_q = count;
 						questionsAsked++;
@@ -208,10 +230,13 @@ namespace PRCOURSE {
 					}
 				}
 			}
+			// Если блиц-режим активен.
 			else
 			{
+				// Вывод блиц-вопроса, увеличение количества спрошенных блиц-вопросов на 1 (до 5).
 				QuestionOutputFunc(gameMode, blitzTextQName, count, blitzMaxQuestions, blitzQuestionNumbers);
 				blitzQuestionsAsked++;
+				// Старт таймера (8 секунд).
 				BlitzTimer->Start();
 			}
 		}
@@ -234,24 +259,33 @@ protected:
 		/// Обязательная переменная конструктора.
 		/// </summary>
 
-
+		// Номер правильного варианта ответа для функции вывода вопроса и обработки ответа.
 		int	right_answer;
+		// Количество баллов.
 		int points = 0;
+		// Количество вопросов.
 		int count_q;
+		// Режим игры.
 		char gameMode_q;
-
+		// Названия файлов с вопросами в зависимости от их типов.
 		String^ regularTextQName = "RegularTextQ.txt";
 		String^ blitzTextQName = "BlitzTextQ.txt";
 		String^ photoTextQName = "PhotoTextQ.txt";
+		// Количества вопросов в каждом из этих файлов.
 		int regularMaxQuestions = 20;
 		int blitzMaxQuestions = 16;
 		int photoMaxQuestions = 5;
-
+		// Флаг для определения, находится ли игра в блиц-режиме.
 		bool isInBlitz = false;
+		// Общий счетчик спрошенных вопросов.
 		int questionsAsked = 0;
+		// Счетчик блиц-блоков (5 блиц-вопросов) - их должно быть не больше count_q/5.
 		int blitzLimit = 0;
-		int blitzQuestionsAnswered = 0;
+		// Счетчик спрошенных блиц-вопросов для одного блиц-блока.
 		int blitzQuestionsAsked = 0;
+		// Счетчик правильно отвеченных блиц-вопросов для одного блока.
+		int blitzQuestionsAnswered = 0;
+
 
 	private: System::Windows::Forms::Label^ QuestionCountLabel;
 	private: System::Windows::Forms::Label^ PointCountLabel;
@@ -545,23 +579,28 @@ protected:
 
 		}
 #pragma endregion
+	// Функция после нажатия на кнопку 1.
 	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
+		// Остановка таймера.
 		BlitzTimer->Stop();
-
+		// Изображения для заднего фона кнопок.
 		Bitmap^ imageRed = gcnew Bitmap("Images/red.jpg");
 		Bitmap^ imageGreen = gcnew Bitmap("Images/green.jpg");
-
+		// Ответ был верный.
 		if (right_answer == 1)
 		{
 			button1->BackgroundImage = imageGreen;
 			if (blitzQuestionsAsked > 0)
 			{
+				// За правильно отвеченный блиц-вопрос +1 балл.
 				points++;
 				blitzQuestionsAnswered++;
 			}
 			else
+				// За правильно отвеченный не блиц-вопрос +5 баллов.
 				points += 5;
 		}
+		// Ответ был неверен в остальных случаях.
 		if (right_answer == 2)
 		{
 			button1->BackgroundImage = imageRed;
@@ -583,12 +622,13 @@ protected:
 			this->AnswerResultLabel->Text = "Неверно!";
 			this->AnswerResultLabel->ForeColor = System::Drawing::Color::Firebrick;
 		}
-
+		// Если все блиц-вопросы спрошены.
 		if (blitzQuestionsAsked == 5)
 		{
 			BlitzTimeProgressBar->Visible = false;
 			blitzQuestionsAsked = 0;
 			isInBlitz = false;
+			// Если все блиц-вопросы отвечены правильно - еще +5 баллов.
 			if (blitzQuestionsAnswered == 5)
 				points += 5;
 			blitzQuestionsAnswered = 0;
@@ -601,7 +641,7 @@ protected:
 		button2->Enabled = false;
 		button3->Enabled = false;
 		button4->Enabled = false;
-
+		// Если все вопросы спрошены - вывести результат в зависимости от быллов.
 		if (questionsAsked == count_q)
 		{
 			if ((double)points > ((3.0 / 4.0) * (double)(count_q * 5)))
@@ -614,6 +654,7 @@ protected:
 		}
 	}
 
+	/* Для остальных кнопок функции аналогичны функции для первой кнопки с небольшими изменениями.*/
 	private: System::Void button2_Click(System::Object^ sender, System::EventArgs^ e) {
 		BlitzTimer->Stop();
 
@@ -820,8 +861,9 @@ protected:
 			this->Close();
 		}
 	}
-
+	// Функция после нажатия на кнопку "Продолжить", выводящуюся после ответа на вопрос.
 	private: System::Void ContinueButton_Click(System::Object^ sender, System::EventArgs^ e) {
+		// Вернуть все в исходное состояние для вывода следующего вопроса.
 		BlitzTimeProgressBar->Value = 0;
 		pictureBox->Visible = false;
 		AnswerResultLabel->Visible = false;
@@ -840,9 +882,10 @@ protected:
 		AnswerResultLabel->Text = "Верно!";
 		AnswerResultLabel->ForeColor = System::Drawing::Color::ForestGreen;
 		QuestionLabel->Text = "";
+		// Запустить функцию вывода нового вопроса.
 		QuestionFunc(gameMode_q, count_q);
 	}
-
+	// Функция после нажатия на кнопку "Продолжить", выводящуюся перед блиц-блоком вопросов.
 	private: System::Void BlitzContinueButton_Click(System::Object^ sender, System::EventArgs^ e) {
 		QuestionFunc(gameMode_q, count_q);
 		BlitzTimeProgressBar->Visible = true;
@@ -855,7 +898,7 @@ protected:
 		BlitzLabel->Visible = false;
 		BlitzContinueButton->Visible = false;
 	}
-
+	// Функция таймера, срабатывающая каждую секунду при блиц-вопросах.
 	private: System::Void BlitzTimer_Tick(System::Object^ sender, System::EventArgs^ e) {
 		if (BlitzTimeProgressBar->Value == 8)
 		{
@@ -872,14 +915,15 @@ protected:
 			}
 			QuestionFunc(gameMode_q, count_q);
 		}
+		// Заполнить полосу Progress Bar, показывающую оставшееся время для ответа.
 		BlitzTimeProgressBar->PerformStep();
 	}
-
+	// При наведении мыши на фото - оно увеличится.
 	private: System::Void pictureBox_MouseMove(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e) {
 		pictureBox->Location = System::Drawing::Point(17, 50);
 		pictureBox->Size = System::Drawing::Size(911, 493);
 	}
-
+	// При отведении мыши с фото - оно уменьшится.
 	private: System::Void pictureBox_MouseLeave(System::Object^ sender, System::EventArgs^ e) {
 		pictureBox->Location = System::Drawing::Point(685, 50);
 		pictureBox->Size = System::Drawing::Size(243, 147);
