@@ -36,7 +36,7 @@ namespace PRCOURSE {
 			}
 		}
 	private: System::Windows::Forms::Button^ StartGameButton;
-	private: System::Windows::Forms::Button^ RecordsButton;
+
 	protected:
 
 	protected:
@@ -57,16 +57,17 @@ namespace PRCOURSE {
 		/// </summary>
 		void InitializeComponent(void)
 		{
+			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(StartForm::typeid));
 			this->StartGameButton = (gcnew System::Windows::Forms::Button());
-			this->RecordsButton = (gcnew System::Windows::Forms::Button());
 			this->NameOfTheGameLabel = (gcnew System::Windows::Forms::Label());
 			this->SuspendLayout();
 			// 
 			// StartGameButton
 			// 
+			this->StartGameButton->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"StartGameButton.BackgroundImage")));
 			this->StartGameButton->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			this->StartGameButton->Location = System::Drawing::Point(221, 212);
+			this->StartGameButton->Location = System::Drawing::Point(219, 233);
 			this->StartGameButton->Name = L"StartGameButton";
 			this->StartGameButton->Size = System::Drawing::Size(130, 38);
 			this->StartGameButton->TabIndex = 0;
@@ -74,25 +75,15 @@ namespace PRCOURSE {
 			this->StartGameButton->UseVisualStyleBackColor = true;
 			this->StartGameButton->Click += gcnew System::EventHandler(this, &StartForm::StartGameButton_Click);
 			// 
-			// RecordsButton
-			// 
-			this->RecordsButton->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->RecordsButton->Location = System::Drawing::Point(221, 269);
-			this->RecordsButton->Name = L"RecordsButton";
-			this->RecordsButton->Size = System::Drawing::Size(130, 38);
-			this->RecordsButton->TabIndex = 1;
-			this->RecordsButton->Text = L"Рекорды";
-			this->RecordsButton->UseVisualStyleBackColor = true;
-			// 
 			// NameOfTheGameLabel
 			// 
 			this->NameOfTheGameLabel->AutoSize = true;
-			this->NameOfTheGameLabel->Font = (gcnew System::Drawing::Font(L"Bernard MT Condensed", 48, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
-			this->NameOfTheGameLabel->Location = System::Drawing::Point(43, 48);
+			this->NameOfTheGameLabel->BackColor = System::Drawing::Color::Transparent;
+			this->NameOfTheGameLabel->Font = (gcnew System::Drawing::Font(L"Franklin Gothic Demi", 48, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->NameOfTheGameLabel->Location = System::Drawing::Point(43, 64);
 			this->NameOfTheGameLabel->Name = L"NameOfTheGameLabel";
-			this->NameOfTheGameLabel->Size = System::Drawing::Size(519, 76);
+			this->NameOfTheGameLabel->Size = System::Drawing::Size(495, 81);
 			this->NameOfTheGameLabel->TabIndex = 2;
 			this->NameOfTheGameLabel->Text = L"Игра-викторина";
 			this->NameOfTheGameLabel->Click += gcnew System::EventHandler(this, &StartForm::label1_Click);
@@ -101,11 +92,14 @@ namespace PRCOURSE {
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"$this.BackgroundImage")));
+			this->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
 			this->ClientSize = System::Drawing::Size(583, 383);
 			this->Controls->Add(this->NameOfTheGameLabel);
-			this->Controls->Add(this->RecordsButton);
 			this->Controls->Add(this->StartGameButton);
+			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedSingle;
 			this->Name = L"StartForm";
+			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"Игра-викторина";
 			this->ResumeLayout(false);
 			this->PerformLayout();

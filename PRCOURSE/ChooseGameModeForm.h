@@ -63,6 +63,7 @@ namespace PRCOURSE {
 		void InitializeComponent(void)
 		{
 			this->components = (gcnew System::ComponentModel::Container());
+			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(ChooseGameModeForm::typeid));
 			this->StandartModeButton = (gcnew System::Windows::Forms::Button());
 			this->ExtendedModeButton = (gcnew System::Windows::Forms::Button());
 			this->ChooseModeLabel = (gcnew System::Windows::Forms::Label());
@@ -76,6 +77,7 @@ namespace PRCOURSE {
 			// 
 			// StandartModeButton
 			// 
+			this->StandartModeButton->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"StandartModeButton.BackgroundImage")));
 			this->StandartModeButton->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
 			this->StandartModeButton->Location = System::Drawing::Point(68, 182);
@@ -83,12 +85,13 @@ namespace PRCOURSE {
 			this->StandartModeButton->Size = System::Drawing::Size(139, 40);
 			this->StandartModeButton->TabIndex = 0;
 			this->StandartModeButton->Text = L"Стандартный";
-			this->GameModeToolTip->SetToolTip(this->StandartModeButton, L"Только текстовые вопросы и вопросы на меткость");
+			this->GameModeToolTip->SetToolTip(this->StandartModeButton, L"Только обычные текстовые и блиц-вопросы");
 			this->StandartModeButton->UseVisualStyleBackColor = true;
 			this->StandartModeButton->Click += gcnew System::EventHandler(this, &ChooseGameModeForm::StandartModeButton_Click);
 			// 
 			// ExtendedModeButton
 			// 
+			this->ExtendedModeButton->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"ExtendedModeButton.BackgroundImage")));
 			this->ExtendedModeButton->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
 			this->ExtendedModeButton->Location = System::Drawing::Point(335, 182);
@@ -96,13 +99,15 @@ namespace PRCOURSE {
 			this->ExtendedModeButton->Size = System::Drawing::Size(139, 40);
 			this->ExtendedModeButton->TabIndex = 1;
 			this->ExtendedModeButton->Text = L"Расширенный";
-			this->GameModeToolTip->SetToolTip(this->ExtendedModeButton, L"Текстовые вопросы, вопросы на меткость и вопросы по фото");
+			this->GameModeToolTip->SetToolTip(this->ExtendedModeButton, L"Обычные текстовые вопросы, блиц-вопросы и вопросы по фото.\r\nПри наведении на фото"
+				L" оно увеличится.");
 			this->ExtendedModeButton->UseVisualStyleBackColor = true;
 			this->ExtendedModeButton->Click += gcnew System::EventHandler(this, &ChooseGameModeForm::ExtendedModeButton_Click);
 			// 
 			// ChooseModeLabel
 			// 
 			this->ChooseModeLabel->AutoSize = true;
+			this->ChooseModeLabel->BackColor = System::Drawing::Color::Transparent;
 			this->ChooseModeLabel->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 18, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
 			this->ChooseModeLabel->Location = System::Drawing::Point(112, 53);
@@ -118,6 +123,7 @@ namespace PRCOURSE {
 			// 
 			// FiveQuestionsButton
 			// 
+			this->FiveQuestionsButton->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"FiveQuestionsButton.BackgroundImage")));
 			this->FiveQuestionsButton->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
 			this->FiveQuestionsButton->Location = System::Drawing::Point(196, 140);
@@ -131,6 +137,7 @@ namespace PRCOURSE {
 			// 
 			// TenQuestionsButton
 			// 
+			this->TenQuestionsButton->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"TenQuestionsButton.BackgroundImage")));
 			this->TenQuestionsButton->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
 			this->TenQuestionsButton->Location = System::Drawing::Point(196, 183);
@@ -144,6 +151,7 @@ namespace PRCOURSE {
 			// 
 			// FifteenQuestionsButton
 			// 
+			this->FifteenQuestionsButton->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"FifteenQuestionsButton.BackgroundImage")));
 			this->FifteenQuestionsButton->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold,
 				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(204)));
 			this->FifteenQuestionsButton->Location = System::Drawing::Point(196, 226);
@@ -158,6 +166,7 @@ namespace PRCOURSE {
 			// QuestionsAmountLabel
 			// 
 			this->QuestionsAmountLabel->AutoSize = true;
+			this->QuestionsAmountLabel->BackColor = System::Drawing::Color::Transparent;
 			this->QuestionsAmountLabel->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 18, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
 			this->QuestionsAmountLabel->Location = System::Drawing::Point(77, 91);
@@ -169,6 +178,7 @@ namespace PRCOURSE {
 			// 
 			// BackButton
 			// 
+			this->BackButton->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"BackButton.BackgroundImage")));
 			this->BackButton->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
 			this->BackButton->Location = System::Drawing::Point(26, 271);
@@ -184,6 +194,8 @@ namespace PRCOURSE {
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"$this.BackgroundImage")));
+			this->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
 			this->ClientSize = System::Drawing::Size(542, 336);
 			this->Controls->Add(this->BackButton);
 			this->Controls->Add(this->QuestionsAmountLabel);
@@ -193,7 +205,10 @@ namespace PRCOURSE {
 			this->Controls->Add(this->ChooseModeLabel);
 			this->Controls->Add(this->ExtendedModeButton);
 			this->Controls->Add(this->StandartModeButton);
+			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedSingle;
+			this->MaximizeBox = false;
 			this->Name = L"ChooseGameModeForm";
+			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterParent;
 			this->Text = L"Выбор режима игры";
 			this->ResumeLayout(false);
 			this->PerformLayout();
