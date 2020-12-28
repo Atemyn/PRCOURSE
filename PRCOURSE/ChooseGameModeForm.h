@@ -206,6 +206,7 @@ namespace PRCOURSE {
 			this->Controls->Add(this->ExtendedModeButton);
 			this->Controls->Add(this->StandartModeButton);
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedSingle;
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->MaximizeBox = false;
 			this->Name = L"ChooseGameModeForm";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterParent;

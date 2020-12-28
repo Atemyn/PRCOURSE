@@ -98,6 +98,7 @@ namespace PRCOURSE {
 			this->Controls->Add(this->NameOfTheGameLabel);
 			this->Controls->Add(this->StartGameButton);
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedSingle;
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->Name = L"StartForm";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"Игра-викторина";
